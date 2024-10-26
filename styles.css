@@ -1,0 +1,206 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode {
+    background-color: #333;
+    color: #fff;
+}
+
+.timer-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.timer {
+    width: 100%;
+    height: 100%;
+    max-width: 80vh;
+    max-height: 80vh;
+}
+
+.timer-background {
+    fill: #e0e0e0;
+    stroke: none;
+}
+
+.timer-progress {
+    fill: #4CAF50;
+    stroke: none;
+}
+
+.timer-handle {
+    stroke: #333;
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.timer-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: bold;
+    display: none;
+}
+
+.timer-display.always_show {
+    display: block;
+}
+
+.settings-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.settings-panel {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100%;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 1001;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-panel.open {
+    right: 0;
+}
+
+.settings-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.close-settings {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    font-size: 24px;
+}
+
+body.dark-mode .settings-panel {
+    background-color: #444;
+    color: #fff;
+}
+
+.sound-attribution {
+    margin-top: auto;
+    font-size: 12px;
+    margin-bottom: 60px;
+}
+
+.sound-attribution a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.sound-attribution a:hover {
+    text-decoration: underline;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: inherit;
+    padding: 5px;
+}
+
+.icon-button:focus {
+    outline: none;
+}
+
+.icon-button.active {
+    color: #4CAF50;
+}
+
+#muteSound.active .fa-volume-up:before {
+    content: "\f6a9";  /* 靜音圖示 */
+}
+
+#darkMode.active .fa-sun:before {
+    content: "\f186";  /* 月亮圖示 */
+}
+
+#alwaysShowTime.active .far.fa-clock:before {
+    content: "\f017";  /* 實心時鐘圖示 */
+}
+
+#circleColor {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+}
+
+/* 在文件末尾添加以下樣式 */
+.shortbreak-icon,
+.longbreak-icon,
+.work-icon {
+    cursor: pointer;
+    transition: color 0.3s, opacity 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    opacity: 0;
+}
+
+.shortcuts-visible .shortbreak-icon,
+.shortcuts-visible .longbreak-icon,
+.shortcuts-visible .work-icon {
+    opacity: 1;
+}
+
+.shortbreak-icon i,
+.longbreak-icon i,
+.work-icon i {
+    font-size: 5px;
+    color: #333;
+}
+
+.shortbreak-icon:hover i,
+.longbreak-icon:hover i,
+.work-icon:hover i {
+    color: #4CAF50;
+}
+
+body.dark-mode .shortbreak-icon i,
+body.dark-mode .longbreak-icon i,
+body.dark-mode .work-icon i {
+    color: #fff;
+}
+
+body.dark-mode .shortbreak-icon:hover i,
+body.dark-mode .longbreak-icon:hover i,
+body.dark-mode .work-icon:hover i {
+    color: #4CAF50;
+}
