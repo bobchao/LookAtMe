@@ -2,7 +2,7 @@
   "name": "LookAtMe Timer",
   "short_name": "LookAtMe",
   "description": "A Simple and Elegant Visual Timer",
-  "start_url": "/LookAtMe/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",

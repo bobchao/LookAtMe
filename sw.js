@@ -10,6 +10,7 @@ self.addEventListener('install', (event) => {
         '/icon-192x192.png',
         '/icon-512x512.png',
         '/bell-sound.mp3',
+        '/fav64.png',
       ]);
     })
   );
