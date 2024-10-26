@@ -2,15 +2,15 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open('v1').then((cache) => {
       return cache.addAll([
-        '/',
-        '/index.html',
-        '/styles.css',
-        '/script.js',
-        '/manifest.json',
-        '/icon-192x192.png',
-        '/icon-512x512.png',
-        '/bell-sound.mp3',
-        '/fav64.png',
+        './',
+        './index.html',
+        './styles.css',
+        './script.js',
+        './manifest.json',
+        './bell-sound.mp3',
+        './fav64.png',
+        './icon-192x192.png',
+        './icon-512x512.png',
       ]);
     })
   );
