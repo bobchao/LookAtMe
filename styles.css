@@ -136,7 +136,7 @@ body.dark-mode .settings-panel {
 }
 
 .icon-button.active {
-    color: #4CAF50;
+    color: var(--active-color);
 }
 
 #muteSound.active .fa-volume-up:before {
@@ -190,7 +190,7 @@ body.dark-mode .settings-panel {
 .shortbreak-icon:hover i,
 .longbreak-icon:hover i,
 .work-icon:hover i {
-    color: #4CAF50;
+    color: var(--hover-color);
 }
 
 body.dark-mode .shortbreak-icon i,
@@ -202,5 +202,10 @@ body.dark-mode .work-icon i {
 body.dark-mode .shortbreak-icon:hover i,
 body.dark-mode .longbreak-icon:hover i,
 body.dark-mode .work-icon:hover i {
-    color: #4CAF50;
+    color: var(--hover-color);
+}
+
+:root {
+    --active-color: #4CAF50;
+    --hover-color: #4CAF50;
 }

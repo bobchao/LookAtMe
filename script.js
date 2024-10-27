@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.progressPath.style.fill = settings.circleColor;
             elements.circleColorInput.value = settings.circleColor;
             updateHandleColor(settings.circleColor);
+            updateButtonColors(settings.circleColor);
             updateTimeDisplay();
         }
     };
@@ -83,21 +84,58 @@ document.addEventListener('DOMContentLoaded', () => {
     function hexToRgb(hex) {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
+            r: parseInt(result[1], 16) / 255,
+            g: parseInt(result[2], 16) / 255,
+            b: parseInt(result[3], 16) / 255
         } : null;
+    }
+
+    function calculateRelativeLuminance(color) {
+        const rgb = hexToRgb(color);
+        return 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+    }
+
+    function calculateContrast(color1, color2) {
+        const l1 = calculateRelativeLuminance(color1);
+        const l2 = calculateRelativeLuminance(color2);
+        return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    }
+
+    function getActiveColor(selectedColor, isDarkMode) {
+        const whiteContrast = calculateContrast(selectedColor, '#FFFFFF');
+        const darkContrast = calculateContrast(selectedColor, '#444444');
+
+        if (isDarkMode) {
+            if (whiteContrast < 1.5) return '#EDEEB9';
+            if (darkContrast < 1.5) return '#5A4F63';
+        } else {
+            if (darkContrast < 1.5) return '#5A4F63';
+            if (whiteContrast < 1.5) return '#EDEEB9';
+        }
+
+        return selectedColor;
+    }
+
+    function updateButtonColors(color) {
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        const activeColor = getActiveColor(color, isDarkMode);
+
+        document.documentElement.style.setProperty('--active-color', activeColor);
+        document.documentElement.style.setProperty('--hover-color', activeColor);
     }
 
     function setupEventListeners() {
         elements.darkModeToggle.addEventListener('click', () => {
             elements.darkModeToggle.classList.toggle('active');
             document.body.classList.toggle('dark-mode');
+            updateButtonColors(elements.circleColorInput.value);
             settings.save();
         });
 
         elements.circleColorInput.addEventListener('change', () => {
-            elements.progressPath.style.fill = elements.circleColorInput.value;
+            const newColor = elements.circleColorInput.value;
+            elements.progressPath.style.fill = newColor;
+            updateButtonColors(newColor);
             settings.save();
         });
 
