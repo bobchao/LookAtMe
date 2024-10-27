@@ -211,25 +211,24 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.handle.setAttribute('y2', y);
     }
 
-    function startTimer() {
-        if (state.timerInterval) clearInterval(state.timerInterval);
-        updateTimeDisplay();
-        state.timerInterval = setInterval(() => {
-            if (state.remainingTime > 0) {
-                state.remainingTime -= 200;
-                const angle = state.startAngle * (state.remainingTime / state.totalTime);
-                updateProgressPath(angle);
-                updateHandlePosition(angle);
-                updateTimeDisplay();
+    let timerWorker;
+
+    function startTimer(duration) {
+        if (timerWorker) {
+            timerWorker.terminate(); // 終止之前的 Worker
+        }
+        timerWorker = new Worker('worker.js'); // 創建新的 Worker
+        timerWorker.postMessage(duration * 60000); // 發送計時長度（轉換為毫秒）
+
+        timerWorker.onmessage = function(e) {
+            const remainingTime = e.data;
+            if (remainingTime > 0) {
+                updateTimer(remainingTime); // 更新計時器顯示
             } else {
-                clearInterval(state.timerInterval);
-                updateProgressPath(0);
-                updateHandlePosition(0);
-                if (!elements.muteSoundToggle.classList.contains('active')) {
-                    elements.timerSound.play();
-                }
+                // 計時結束的處理
+                alert("計時結束！");
             }
-        }, 200);
+        };
     }
 
     function startDragging(e) {
