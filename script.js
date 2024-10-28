@@ -211,24 +211,63 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.handle.setAttribute('y2', y);
     }
 
-    let timerWorker;
+    let timerWorker = new Worker('timerWorker.js');
+    let startTime;
+    let remainingTime;
+    let timerId;
 
-    function startTimer(duration) {
-        if (timerWorker) {
-            timerWorker.terminate(); // 終止之前的 Worker
-        }
-        timerWorker = new Worker('worker.js'); // 創建新的 Worker
-        timerWorker.postMessage(duration * 60000); // 發送計時長度（轉換為毫秒）
+    timerWorker.onmessage = function(event) {
+        const { command, remainingTime: workerRemainingTime } = event.data;
 
-        timerWorker.onmessage = function(e) {
-            const remainingTime = e.data;
-            if (remainingTime > 0) {
-                updateTimer(remainingTime); // 更新計時器顯示
-            } else {
-                // 計時結束的處理
-                alert("計時結束！");
+        if (command === 'tick') {
+            state.remainingTime = workerRemainingTime;
+            if (!timerId) {
+                startTime = performance.now();
+                remainingTime = state.remainingTime;
+                timerId = requestAnimationFrame(tick);
             }
-        };
+        } else if (command === 'end') {
+            state.remainingTime = 0;
+            updateProgressPath(0);
+            updateHandlePosition(0);
+            if (!elements.muteSoundToggle.classList.contains('active')) {
+                elements.timerSound.play();
+            }
+            cancelAnimationFrame(timerId);
+            timerId = null;
+        }
+    };
+
+    function tick(timestamp) {
+        const elapsed = timestamp - startTime;
+        state.remainingTime = remainingTime - elapsed;
+
+        if (state.remainingTime > 0) {
+            const angle = state.startAngle * (state.remainingTime / state.totalTime);
+            updateProgressPath(angle);
+            updateHandlePosition(angle);
+            updateTimeDisplay();
+            timerId = requestAnimationFrame(tick);
+        } else {
+            state.remainingTime = 0;
+            updateProgressPath(0);
+            updateHandlePosition(0);
+            if (!elements.muteSoundToggle.classList.contains('active')) {
+                elements.timerSound.play();
+            }
+            cancelAnimationFrame(timerId);
+            timerId = null;
+        }
+    }
+
+    function startTimer() {
+        timerWorker.postMessage({ command: 'start', time: state.remainingTime });
+        updateTimeDisplay();
+    }
+
+    function stopTimer() {
+        timerWorker.postMessage({ command: 'stop' });
+        if (timerId) cancelAnimationFrame(timerId);
     }
 
     function startDragging(e) {
