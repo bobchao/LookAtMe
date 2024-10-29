@@ -41,29 +41,11 @@
         </div>
         <div class="sound-attribution">
             <a href="https://freesound.org/s/557923/">鈴聲來自 ConBlast</a>，以 <a href="https://creativecommons.org/licenses/by/3.0/">CC:BY 3.0</a> 授權
-            <p>版本號: v.1.0.1</p>
+            <p>版本號: v.1.0.2</p>
         </div>
         <button class="close-settings icon-button"><i class="fas fa-times"></i></button>
     </div>
     <audio id="timerSound" src="bell-sound.mp3"></audio>
     <script src="script.js"></script>
-    <script>
-        // 檢查是否在支持的環境中
-        if (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('sw.js')
-                        .then((registration) => {
-                            console.log('Service Worker 註冊成功:', registration.scope);
-                        })
-                        .catch((error) => {
-                            console.log('Service Worker 註冊失敗:', error);
-                        });
-                });
-            }
-        } else {
-            console.log('Service Worker 不支持在當前環境運行');
-        }
-    </script>
 </body>
 </html>
