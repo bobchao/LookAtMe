@@ -152,14 +152,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateProgressPath(angle) {
             const x = 55 + 45 * Math.sin(angle * Math.PI / 180);
-            const y = 50 - 45 * Math.cos(angle * Math.PI / 180);
+            const y = 55 - 45 * Math.cos(angle * Math.PI / 180);
             const largeArcFlag = angle > 180 ? 1 : 0;
-            elements.progressPath.setAttribute('d', `M55 5 A45 45 0 ${largeArcFlag} 1 ${x} ${y} L55 50`);
+            elements.progressPath.setAttribute('d', `M55 10 A45 45 0 ${largeArcFlag} 1 ${x} ${y} L55 55`);
         },
 
         updateHandlePosition(angle) {
             const x = 55 + 45 * Math.sin(angle * Math.PI / 180);
-            const y = 50 - 45 * Math.cos(angle * Math.PI / 180);
+            const y = 55 - 45 * Math.cos(angle * Math.PI / 180);
             elements.handle.setAttribute('x2', x);
             elements.handle.setAttribute('y2', y);
         },
@@ -174,16 +174,19 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         calculateIconPosition(hour) {
-            const svgRect = elements.svg.getBoundingClientRect();
-            const centerX = 55; // SVG 座標系統中的中心點
-            const centerY = 50;
+            const centerX = 55;
+            const centerY = 55;
             const radius = 45;
             const distance = radius * 1.1;
             const angle = (hour * 30 - 90) * (Math.PI / 180);
             
+            const x = centerX + distance * Math.cos(angle);
+            const y = centerY + distance * Math.sin(angle);
+            
             return {
-                x: centerX + distance * Math.cos(angle),
-                y: centerY + distance * Math.sin(angle)
+                x: x,
+                y: y,
+                transform: `translate(-2.5, -2.5)` // 使用 transform 來調整位置
             };
         },
 
@@ -192,16 +195,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const shortBreakPos = this.calculateIconPosition(1);
             elements.shortBreakIcon.setAttribute('x', shortBreakPos.x);
             elements.shortBreakIcon.setAttribute('y', shortBreakPos.y);
+            elements.shortBreakIcon.setAttribute('transform', shortBreakPos.transform);
 
             // 長休息圖示 (3點鐘方向)
             const longBreakPos = this.calculateIconPosition(3);
             elements.longBreakIcon.setAttribute('x', longBreakPos.x);
             elements.longBreakIcon.setAttribute('y', longBreakPos.y);
+            elements.longBreakIcon.setAttribute('transform', longBreakPos.transform);
 
             // 工作圖示 (5點鐘方向)
             const workPos = this.calculateIconPosition(5);
             elements.workIcon.setAttribute('x', workPos.x);
             elements.workIcon.setAttribute('y', workPos.y);
+            elements.workIcon.setAttribute('transform', workPos.transform);
         },
 
         resizeTimer() {
