@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
         alwaysShowTimeToggle: document.getElementById('alwaysShowTime'),
         timerSound: document.getElementById('timerSound'),
         showShortcutsToggle: document.getElementById('showShortcuts'),
-        shortbreakIcon: document.querySelector('.shortbreak-icon'),
-        longbreakIcon: document.querySelector('.longbreak-icon'),
-        workIcon: document.querySelector('.work-icon')
+        shortBreakIcon: document.getElementById('shortBreakIcon'),
+        longBreakIcon: document.getElementById('longBreakIcon'),
+        workIcon: document.getElementById('workIcon')
     };
 
     // 狀態管理
@@ -173,10 +173,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
 
+        calculateIconPosition(hour) {
+            const svgRect = elements.svg.getBoundingClientRect();
+            const centerX = 55; // SVG 座標系統中的中心點
+            const centerY = 50;
+            const radius = 45;
+            const distance = radius * 1.1;
+            const angle = (hour * 30 - 90) * (Math.PI / 180);
+            
+            return {
+                x: centerX + distance * Math.cos(angle),
+                y: centerY + distance * Math.sin(angle)
+            };
+        },
+
+        updateIconPositions() {
+            // 短休息圖示 (1點鐘方向)
+            const shortBreakPos = this.calculateIconPosition(1);
+            elements.shortBreakIcon.setAttribute('x', shortBreakPos.x);
+            elements.shortBreakIcon.setAttribute('y', shortBreakPos.y);
+
+            // 長休息圖示 (3點鐘方向)
+            const longBreakPos = this.calculateIconPosition(3);
+            elements.longBreakIcon.setAttribute('x', longBreakPos.x);
+            elements.longBreakIcon.setAttribute('y', longBreakPos.y);
+
+            // 工作圖示 (5點鐘方向)
+            const workPos = this.calculateIconPosition(5);
+            elements.workIcon.setAttribute('x', workPos.x);
+            elements.workIcon.setAttribute('y', workPos.y);
+        },
+
         resizeTimer() {
             const containerSize = Math.min(window.innerWidth, window.innerHeight) * 0.8;
             elements.svg.style.width = `${containerSize}px`;
             elements.svg.style.height = `${containerSize}px`;
+            this.updateIconPositions(); // 在調整大小時更新圖示位置
         }
     };
 
@@ -355,8 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('resize', () => uiUpdater.resizeTimer());
 
         // 快捷按鈕
-        elements.shortbreakIcon.addEventListener('click', () => setTimer(5));
-        elements.longbreakIcon.addEventListener('click', () => setTimer(15));
+        elements.shortBreakIcon.addEventListener('click', () => setTimer(5));
+        elements.longBreakIcon.addEventListener('click', () => setTimer(15));
         elements.workIcon.addEventListener('click', () => setTimer(25));
     }
 
@@ -376,6 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
         uiUpdater.resizeTimer();
         uiUpdater.updateProgressPath(0);
         uiUpdater.updateHandlePosition(0);
+        uiUpdater.updateIconPositions(); // 初始化圖示位置
     }
 
     init();

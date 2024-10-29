@@ -209,3 +209,8 @@ body.dark-mode .work-icon:hover i {
     --active-color: #4CAF50;
     --hover-color: #4CAF50;
 }
+
+/* 新增這個樣式確保按鈕可以被絕對定位 */
+.container {
+    position: relative;
+}
