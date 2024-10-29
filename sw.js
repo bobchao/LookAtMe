@@ -32,14 +32,18 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request).then((fetchResponse) => {
-        return caches.open('v1').then((cache) => {
-          cache.put(event.request, fetchResponse.clone()); // 更新快取
-          return fetchResponse;
+  if (event.request.method === 'GET') {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request).then((fetchResponse) => {
+          return caches.open('v1').then((cache) => {
+            cache.put(event.request, fetchResponse.clone()); // 更新快取
+            return fetchResponse;
+          });
         });
-      });
-    })
-  );
+      })
+    );
+  } else {
+    event.respondWith(fetch(event.request));
+  }
 });
