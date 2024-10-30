@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
         alwaysShowTimeToggle: document.getElementById('alwaysShowTime'),
         timerSound: document.getElementById('timerSound'),
         showShortcutsToggle: document.getElementById('showShortcuts'),
-        shortBreakIcon: document.getElementById('shortBreakIcon'),
-        longBreakIcon: document.getElementById('longBreakIcon'),
-        workIcon: document.getElementById('workIcon'),
+        icon1: document.getElementById('icon1'),
+        icon2: document.getElementById('icon2'),
+        icon3: document.getElementById('icon3'),
         fullscreenToggle: document.querySelector('.fullscreen-icon')
     };
 
@@ -175,12 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
 
-        calculateIconPosition(hour) {
+        calculateIconPosition(minutes) {
             const centerX = 55;
             const centerY = 55;
             const radius = 45;
             const distance = radius * 1.1;
-            const angle = (hour * 30 - 90) * (Math.PI / 180);
+            const angle = (minutes * 6 - 90) * (Math.PI / 180);
             
             const x = centerX + distance * Math.cos(angle);
             const y = centerY + distance * Math.sin(angle);
@@ -188,28 +188,28 @@ document.addEventListener('DOMContentLoaded', () => {
             return {
                 x: x,
                 y: y,
-                transform: `translate(-2.5, -2.5)` // 使用 transform 來調整位
+                transform: `translate(-2.5, -2.5)`
             };
         },
 
         updateIconPositions() {
-            // 短休息圖示 (1點鐘方向)
-            const shortBreakPos = this.calculateIconPosition(1);
-            elements.shortBreakIcon.setAttribute('x', shortBreakPos.x);
-            elements.shortBreakIcon.setAttribute('y', shortBreakPos.y);
-            elements.shortBreakIcon.setAttribute('transform', shortBreakPos.transform);
+            // 圖示 1 (5分鐘)
+            const icon1Pos = this.calculateIconPosition(5);
+            elements.icon1.setAttribute('x', icon1Pos.x);
+            elements.icon1.setAttribute('y', icon1Pos.y);
+            elements.icon1.setAttribute('transform', icon1Pos.transform);
 
-            // 長休息圖示 (3點鐘方向)
-            const longBreakPos = this.calculateIconPosition(3);
-            elements.longBreakIcon.setAttribute('x', longBreakPos.x);
-            elements.longBreakIcon.setAttribute('y', longBreakPos.y);
-            elements.longBreakIcon.setAttribute('transform', longBreakPos.transform);
+            // 圖示 2 (15分鐘)
+            const icon2Pos = this.calculateIconPosition(15);
+            elements.icon2.setAttribute('x', icon2Pos.x);
+            elements.icon2.setAttribute('y', icon2Pos.y);
+            elements.icon2.setAttribute('transform', icon2Pos.transform);
 
-            // 工作圖示 (5點鐘方向)
-            const workPos = this.calculateIconPosition(5);
-            elements.workIcon.setAttribute('x', workPos.x);
-            elements.workIcon.setAttribute('y', workPos.y);
-            elements.workIcon.setAttribute('transform', workPos.transform);
+            // 圖示 3 (25分鐘)
+            const icon3Pos = this.calculateIconPosition(25);
+            elements.icon3.setAttribute('x', icon3Pos.x);
+            elements.icon3.setAttribute('y', icon3Pos.y);
+            elements.icon3.setAttribute('transform', icon3Pos.transform);
         },
 
         resizeTimer() {
@@ -428,27 +428,27 @@ document.addEventListener('DOMContentLoaded', () => {
         // 拖曳相關
         dragElements.forEach(element => {
             element.addEventListener('mousedown', e => dragController.startDragging(e));
-            element.addEventListener('touchstart', e => dragController.startDragging(e));
+            element.addEventListener('touchstart', e => dragController.startDragging(e), { passive: false });
         });
 
         document.addEventListener('mousemove', e => dragController.drag(e));
-        document.addEventListener('touchmove', e => dragController.drag(e));
+        document.addEventListener('touchmove', e => dragController.drag(e), { passive: false });
         document.addEventListener('mouseup', () => dragController.stopDragging());
-        document.addEventListener('touchend', () => dragController.stopDragging());
+        document.addEventListener('touchend', () => dragController.stopDragging(), { passive: true });
 
         // 視窗大小調整
         window.addEventListener('resize', () => uiUpdater.resizeTimer());
 
         // 修改快捷按鈕事件綁定
-        elements.shortBreakIcon.querySelector('i').addEventListener('click', (e) => {
+        elements.icon1.querySelector('i').addEventListener('click', (e) => {
             e.stopPropagation();  // 防止事件冒泡
             setTimer(5);
         });
-        elements.longBreakIcon.querySelector('i').addEventListener('click', (e) => {
+        elements.icon2.querySelector('i').addEventListener('click', (e) => {
             e.stopPropagation();
             setTimer(15);
         });
-        elements.workIcon.querySelector('i').addEventListener('click', (e) => {
+        elements.icon3.querySelector('i').addEventListener('click', (e) => {
             e.stopPropagation();
             setTimer(25);
         });

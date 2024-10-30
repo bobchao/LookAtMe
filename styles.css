@@ -165,9 +165,7 @@ body.dark-mode .settings-panel {
 }
 
 /* 在文件末尾添加以下樣式 */
-.shortbreak-icon,
-.longbreak-icon,
-.work-icon {
+.timer-icon {
     cursor: pointer;
     transition: color 0.3s, opacity 0.3s;
     display: flex;
@@ -179,34 +177,24 @@ body.dark-mode .settings-panel {
     opacity: 0;
 }
 
-.shortcuts-visible .shortbreak-icon,
-.shortcuts-visible .longbreak-icon,
-.shortcuts-visible .work-icon {
+.shortcuts-visible .timer-icon {
     opacity: 1;
 }
 
-.shortbreak-icon i,
-.longbreak-icon i,
-.work-icon i {
+.timer-icon i {
     font-size: 5px;
     color: #333;
 }
 
-.shortbreak-icon:hover i,
-.longbreak-icon:hover i,
-.work-icon:hover i {
+.timer-icon:hover i {
     color: var(--hover-color);
 }
 
-body.dark-mode .shortbreak-icon i,
-body.dark-mode .longbreak-icon i,
-body.dark-mode .work-icon i {
+body.dark-mode .timer-icon i {
     color: #fff;
 }
 
-body.dark-mode .shortbreak-icon:hover i,
-body.dark-mode .longbreak-icon:hover i,
-body.dark-mode .work-icon:hover i {
+body.dark-mode .timer-icon:hover i {
     color: var(--hover-color);
 }
 
@@ -218,28 +206,6 @@ body.dark-mode .work-icon:hover i {
 /* 新增這個樣式確保按鈕可以被對定位 */
 .container {
     position: relative;
-}
-
-/* 新增圖示專用的 hover 樣式 */
-.shortcuts-visible .work-icon i:hover,
-.shortcuts-visible .short-break-icon i:hover,
-.shortcuts-visible .long-break-icon i:hover {
-    cursor: pointer;
-    color: var(--hover-color);
-}
-
-/* 確保圖示本身可以被互動 */
-.work-icon i,
-.short-break-icon i,
-.long-break-icon i {
-    pointer-events: auto;
-}
-
-/* 確保 foreignObject 不會干擾點擊事件 */
-.work-icon,
-.short-break-icon,
-.long-break-icon {
-    pointer-events: none;
 }
 
 /* 全螢幕模式下的樣式 */
