@@ -270,42 +270,43 @@ body.dark-mode .timer-icon:hover i {
     max-height: none;
 }
 
-/* 新增圖示設定相關樣式 */
+/* 修改圖示設定相關樣式 */
 .icon-settings {
-    margin-top: 20px;
-    padding: 10px;
+    margin-top: 10px;
+    padding: 10px 0;
     border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
 }
 
 .icon-setting {
-    margin-bottom: 15px;
+    margin: 8px 0;
 }
 
 .icon-setting-row {
     display: flex;
     gap: 10px;
     align-items: center;
-    margin-top: 5px;
-    justify-content: space-between;
 }
 
 .minutes-input {
     width: 60px;
     padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 .current-icon {
     font-size: 20px;
-    cursor: pointer;
+    min-width: 24px;
+    text-align: center;
 }
 
 body.dark-mode .icon-settings {
-    border-top-color: #555;
+    border-color: #555;
 }
 
-body.dark-mode .minutes-input,
-body.dark-mode .label-input {
+body.dark-mode .minutes-input {
     background-color: #333;
     color: #fff;
-    border: 1px solid #555;
+    border-color: #555;
 }

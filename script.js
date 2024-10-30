@@ -89,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (settings.showShortcuts) {
                 elements.showShortcutsToggle.classList.add('active');
                 document.body.classList.add('shortcuts-visible');
+                document.querySelector('.icon-settings').style.display = 'block';
             }
             elements.progressPath.style.fill = settings.circleColor;
             elements.circleColorInput.value = settings.circleColor;
@@ -383,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
         start() {
             // 確保先停止現有計時器
             this.stop();
-            // 發送開始命令��� worker
+            // 發送開始命令 worker
             this.worker.postMessage({ 
                 command: 'start', 
                 time: state.remainingTime 
@@ -482,6 +483,11 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.showShortcutsToggle.addEventListener('click', () => {
             elements.showShortcutsToggle.classList.toggle('active');
             document.body.classList.toggle('shortcuts-visible');
+            
+            // 同時控制圖示設定區域的顯示
+            const iconSettings = document.querySelector('.icon-settings');
+            iconSettings.style.display = elements.showShortcutsToggle.classList.contains('active') ? 'block' : 'none';
+            
             settings.save();
         });
 
@@ -542,12 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
         document.addEventListener('mozfullscreenchange', handleFullscreenChange);
 
-        // 圖示設定按鈕
-        document.getElementById('editIcons').addEventListener('click', () => {
-            const iconSettings = document.querySelector('.icon-settings');
-            iconSettings.style.display = iconSettings.style.display === 'none' ? 'block' : 'none';
-        });
-
         // 修改分鐘輸入的監聽，改用 input 事件以實現即時更新
         document.querySelectorAll('.minutes-input').forEach(input => {
             input.addEventListener('input', (e) => {
@@ -580,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 uiUpdater.updateIconPositions();
             });
 
-            // 處理方向鍵和滾輪事件
+            // 處理方向鍵事件
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                     e.preventDefault();
@@ -596,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // ��輪事件
+            // 處理滾輪事件
             input.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 let value = parseInt(e.target.value);
