@@ -452,6 +452,94 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // 圖示資料
+    const iconData = {
+        time: [
+            'fa-clock', 'fa-hourglass', 'fa-stopwatch', 'fa-bell', 
+            'fa-calendar', 'fa-calendar-alt', 'fa-calendar-check'
+        ],
+        break: [
+            'fa-coffee', 'fa-mug-hot', 'fa-cookie', 'fa-ice-cream',
+            'fa-pizza-slice', 'fa-hamburger', 'fa-candy-cane'
+        ],
+        work: [
+            'fa-briefcase', 'fa-laptop', 'fa-desktop', 'fa-keyboard',
+            'fa-tasks', 'fa-clipboard', 'fa-pencil-alt'
+        ],
+        other: [
+            'fa-star', 'fa-heart', 'fa-bookmark', 'fa-flag',
+            'fa-bell', 'fa-gem', 'fa-crown'
+        ]
+    };
+
+    // 圖示選擇器控制
+    const iconPicker = {
+        currentTarget: null,
+        
+        init() {
+            const picker = document.querySelector('.icon-picker');
+            
+            // 點擊分類切換圖示列表
+            document.querySelectorAll('.icon-categories i').forEach(category => {
+                category.addEventListener('click', (e) => {
+                    document.querySelectorAll('.icon-categories i').forEach(c => c.classList.remove('active'));
+                    e.target.classList.add('active');
+                    this.showIcons(e.target.dataset.category);
+                });
+            });
+            
+            // 點擊外部關閉選擇器
+            document.addEventListener('click', (e) => {
+                if (!picker.contains(e.target) && !e.target.classList.contains('current-icon')) {
+                    picker.style.display = 'none';
+                }
+            });
+        },
+        
+        showPicker(target, event) {
+            const picker = document.querySelector('.icon-picker');
+            this.currentTarget = target;
+            
+            // 只需要顯示選擇器
+            picker.style.display = 'block';
+            
+            // 預設顯示第一個分類的圖示
+            this.showIcons('time');
+            event.stopPropagation();
+        },
+        
+        showIcons(category) {
+            const iconList = document.querySelector('.icon-list');
+            iconList.innerHTML = '';
+            
+            iconData[category].forEach(icon => {
+                const i = document.createElement('i');
+                i.className = `fas ${icon}`;
+                i.addEventListener('click', () => this.selectIcon(icon));
+                iconList.appendChild(i);
+            });
+        },
+        
+        selectIcon(iconClass) {
+            if (this.currentTarget) {
+                // 更新設定面板中的圖示
+                this.currentTarget.className = `fas ${iconClass} current-icon`;
+                
+                // 更新時鐘面板上的圖示
+                const settingRow = this.currentTarget.closest('.icon-setting');
+                const index = Array.from(settingRow.parentNode.children).indexOf(settingRow);
+                const svgIcon = elements[`icon${index + 1}`].querySelector('i');
+                svgIcon.className = `fas ${iconClass}`;
+                
+                // 儲存設定
+                settings.save();
+                
+                // 關閉選擇器
+                document.querySelector('.icon-picker').style.display = 'none';
+            }
+        }
+    };
+
     // 事件監聽器設定
     function setupEventListeners() {
         // 設定面板相關
@@ -610,6 +698,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 uiUpdater.updateIconPositions();
             }, { passive: false });
         });
+
+        // 在 setupEventListeners 中加入圖示點擊事件
+        document.querySelectorAll('.current-icon').forEach(icon => {
+            icon.addEventListener('click', (e) => iconPicker.showPicker(icon, e));
+        });
     }
 
     // 設定計時器
@@ -629,6 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
         uiUpdater.updateProgressPath(0);
         uiUpdater.updateHandlePosition(0);
         uiUpdater.updateIconPositions(); // 初始化圖示位置
+        iconPicker.init();
     }
 
     init();
