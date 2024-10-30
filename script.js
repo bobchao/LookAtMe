@@ -51,11 +51,24 @@ document.addEventListener('DOMContentLoaded', () => {
             alwaysShowTime: false,
             showShortcuts: false,
             fullscreen: false,
-            icons: [
-                { id: 'icon1', minutes: 5, icon: 'fa-coffee' },
-                { id: 'icon2', minutes: 15, icon: 'fa-mug-hot' },
-                { id: 'icon3', minutes: 25, icon: 'fa-briefcase' }
-            ]
+            iconCategories: {
+                time: [
+                    'fa-clock', 'fa-hourglass', 'fa-stopwatch', 'fa-bell', 
+                    'fa-calendar', 'fa-calendar-alt', 'fa-calendar-check'
+                ],
+                break: [
+                    'fa-coffee', 'fa-mug-hot', 'fa-cookie', 'fa-ice-cream',
+                    'fa-pizza-slice', 'fa-hamburger', 'fa-candy-cane'
+                ],
+                work: [
+                    'fa-briefcase', 'fa-laptop', 'fa-desktop', 'fa-keyboard',
+                    'fa-tasks', 'fa-clipboard', 'fa-pencil-alt'
+                ],
+                other: [
+                    'fa-star', 'fa-heart', 'fa-bookmark', 'fa-flag',
+                    'fa-bell', 'fa-gem', 'fa-crown'
+                ]
+            }
         },
 
         load() {
@@ -325,6 +338,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 更新圖示位置
             this.updateIconPositions();
+        },
+
+        showIconPicker() {
+            const picker = document.querySelector('.icon-picker');
+            picker.style.display = 'block';
+        },
+        
+        hideIconPicker() {
+            const picker = document.querySelector('.icon-picker');
+            picker.style.display = 'none';
+        },
+        
+        updateIconList(category, icons) {
+            const iconList = document.querySelector('.icon-list');
+            iconList.innerHTML = '';
+            
+            icons.forEach(icon => {
+                const i = document.createElement('i');
+                i.className = `fas ${icon}`;
+                i.addEventListener('click', () => iconPicker.selectIcon(icon));
+                iconList.appendChild(i);
+            });
+        },
+        
+        updateIconCategories(activeCategory) {
+            document.querySelectorAll('.icon-categories i').forEach(category => {
+                category.classList.toggle('active', category.dataset.category === activeCategory);
+            });
+        },
+        
+        updateIcon(target, iconClass) {
+            // 更新設定面板中的圖示
+            target.className = `fas ${iconClass} current-icon`;
+            
+            // 更新時鐘面板上的圖示
+            const settingRow = target.closest('.icon-setting');
+            const index = Array.from(settingRow.parentNode.children).indexOf(settingRow);
+            const svgIcon = elements[`icon${index + 1}`].querySelector('i');
+            svgIcon.className = `fas ${iconClass}`;
         }
     };
 
@@ -452,90 +504,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 圖示資料
-    const iconData = {
-        time: [
-            'fa-clock', 'fa-hourglass', 'fa-stopwatch', 'fa-bell', 
-            'fa-calendar', 'fa-calendar-alt', 'fa-calendar-check'
-        ],
-        break: [
-            'fa-coffee', 'fa-mug-hot', 'fa-cookie', 'fa-ice-cream',
-            'fa-pizza-slice', 'fa-hamburger', 'fa-candy-cane'
-        ],
-        work: [
-            'fa-briefcase', 'fa-laptop', 'fa-desktop', 'fa-keyboard',
-            'fa-tasks', 'fa-clipboard', 'fa-pencil-alt'
-        ],
-        other: [
-            'fa-star', 'fa-heart', 'fa-bookmark', 'fa-flag',
-            'fa-bell', 'fa-gem', 'fa-crown'
-        ]
-    };
-
     // 圖示選擇器控制
     const iconPicker = {
         currentTarget: null,
         
         init() {
-            const picker = document.querySelector('.icon-picker');
-            
+            this.setupEventListeners();
+        },
+        
+        setupEventListeners() {
             // 點擊分類切換圖示列表
             document.querySelectorAll('.icon-categories i').forEach(category => {
                 category.addEventListener('click', (e) => {
-                    document.querySelectorAll('.icon-categories i').forEach(c => c.classList.remove('active'));
-                    e.target.classList.add('active');
-                    this.showIcons(e.target.dataset.category);
+                    const selectedCategory = e.target.dataset.category;
+                    uiUpdater.updateIconCategories(selectedCategory);
+                    this.showIcons(selectedCategory);
                 });
             });
             
             // 點擊外部關閉選擇器
             document.addEventListener('click', (e) => {
+                const picker = document.querySelector('.icon-picker');
                 if (!picker.contains(e.target) && !e.target.classList.contains('current-icon')) {
-                    picker.style.display = 'none';
+                    uiUpdater.hideIconPicker();
                 }
             });
         },
         
         showPicker(target, event) {
-            const picker = document.querySelector('.icon-picker');
             this.currentTarget = target;
-            
-            // 只需要顯示選擇器
-            picker.style.display = 'block';
-            
-            // 預設顯示第一個分類的圖示
+            uiUpdater.showIconPicker();
             this.showIcons('time');
             event.stopPropagation();
         },
         
         showIcons(category) {
-            const iconList = document.querySelector('.icon-list');
-            iconList.innerHTML = '';
-            
-            iconData[category].forEach(icon => {
-                const i = document.createElement('i');
-                i.className = `fas ${icon}`;
-                i.addEventListener('click', () => this.selectIcon(icon));
-                iconList.appendChild(i);
-            });
+            uiUpdater.updateIconList(
+                category, 
+                settings.defaultSettings.iconCategories[category]
+            );
         },
         
         selectIcon(iconClass) {
             if (this.currentTarget) {
-                // 更新設定面板中的圖示
-                this.currentTarget.className = `fas ${iconClass} current-icon`;
-                
-                // 更新時鐘面板上的圖示
-                const settingRow = this.currentTarget.closest('.icon-setting');
-                const index = Array.from(settingRow.parentNode.children).indexOf(settingRow);
-                const svgIcon = elements[`icon${index + 1}`].querySelector('i');
-                svgIcon.className = `fas ${iconClass}`;
-                
-                // 儲存設定
+                uiUpdater.updateIcon(this.currentTarget, iconClass);
                 settings.save();
-                
-                // 關閉選擇器
-                document.querySelector('.icon-picker').style.display = 'none';
+                uiUpdater.hideIconPicker();
             }
         }
     };
@@ -638,65 +652,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 修改分鐘輸入的監聽，改用 input 事件以實現即時更新
         document.querySelectorAll('.minutes-input').forEach(input => {
-            input.addEventListener('input', (e) => {
-                let value = e.target.value;
-                
-                // 處理非數字輸入
-                if (!/^\d*\.?\d*$/.test(value)) {
-                    value = '60';
-                }
-                
-                // 處理小數
-                value = Math.floor(parseFloat(value));
-                
-                // 處理特殊情況
-                if (value === 0 || isNaN(value)) {
-                    value = 60;
-                }
-                
-                // 處理循環
-                if (value > 60) {
-                    value = 1;
-                } else if (value < 1) {
-                    value = 60;
-                }
-                
-                // 更新輸入框的值
-                e.target.value = value;
-                
-                settings.save();
-                uiUpdater.updateIconPositions();
-            });
-
-            // 處理方向鍵事件
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    let value = parseInt(e.target.value);
-                    if (e.key === 'ArrowUp') {
-                        value = value >= 60 ? 1 : value + 1;
-                    } else {
-                        value = value <= 1 ? 60 : value - 1;
-                    }
-                    e.target.value = value;
-                    settings.save();
-                    uiUpdater.updateIconPositions();
-                }
-            });
-
-            // 處理滾輪事件
-            input.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                let value = parseInt(e.target.value);
-                if (e.deltaY < 0) {
-                    value = value >= 60 ? 1 : value + 1;
-                } else {
-                    value = value <= 1 ? 60 : value - 1;
-                }
-                e.target.value = value;
-                settings.save();
-                uiUpdater.updateIconPositions();
-            }, { passive: false });
+            input.addEventListener('input', handleMinutesInput);
+            input.addEventListener('keydown', handleMinutesKeydown);
+            input.addEventListener('wheel', handleMinutesWheel, { passive: false });
         });
 
         // 在 setupEventListeners 中加入圖示點擊事件
@@ -762,5 +720,53 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 在全螢幕狀態改變時重新計算尺寸
         uiUpdater.resizeTimer();
+    }
+
+    function handleMinutesInput(e) {
+        let value = e.target.value;
+        
+        if (!/^\d*\.?\d*$/.test(value)) {
+            value = '60';
+        }
+        
+        value = Math.floor(parseFloat(value));
+        
+        if (value === 0 || isNaN(value)) {
+            value = 60;
+        }
+        
+        if (value > 60) {
+            value = 1;
+        } else if (value < 1) {
+            value = 60;
+        }
+        
+        e.target.value = value;
+        settings.save();
+        uiUpdater.updateIconPositions();
+    }
+
+    function handleMinutesKeydown(e) {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            let value = parseInt(e.target.value);
+            value = e.key === 'ArrowUp' 
+                ? (value >= 60 ? 1 : value + 1)
+                : (value <= 1 ? 60 : value - 1);
+            e.target.value = value;
+            settings.save();
+            uiUpdater.updateIconPositions();
+        }
+    }
+
+    function handleMinutesWheel(e) {
+        e.preventDefault();
+        let value = parseInt(e.target.value);
+        value = e.deltaY < 0
+            ? (value >= 60 ? 1 : value + 1)
+            : (value <= 1 ? 60 : value - 1);
+        e.target.value = value;
+        settings.save();
+        uiUpdater.updateIconPositions();
     }
 });

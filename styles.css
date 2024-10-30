@@ -10,9 +10,20 @@ body {
 }
 
 body.dark-mode {
-    background-color: #333;
+    background-color: var(--dark-bg);
     color: #fff;
 }
+
+body.dark-mode .timer-background { fill: #101010; }
+body.dark-mode .settings-panel { background-color: var(--dark-panel); }
+body.dark-mode .icon-settings,
+body.dark-mode .icon-picker,
+body.dark-mode .icon-picker-header { border-color: var(--dark-element); }
+body.dark-mode .minutes-input,
+body.dark-mode .icon-picker { background-color: var(--dark-panel); }
+body.dark-mode .icon-categories i:hover,
+body.dark-mode .icon-categories i.active,
+body.dark-mode .icon-list i:hover { background: var(--dark-element); }
 
 .timer-container {
     position: relative;
@@ -34,10 +45,6 @@ body.dark-mode {
 .timer-background {
     fill: #e0e0e0;
     stroke: none;
-}
-
-body.dark-mode .timer-background {
-    fill: #101010;
 }
 
 .timer-progress {
@@ -77,8 +84,8 @@ body.dark-mode .timer-background {
 .settings-panel {
     position: fixed;
     top: 0;
-    right: -300px;
-    width: 300px;
+    right: calc(-1 * var(--panel-width));
+    width: var(--panel-width);
     height: 100%;
     background-color: white;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
@@ -107,11 +114,6 @@ body.dark-mode .timer-background {
     font-size: 24px;
 }
 
-body.dark-mode .settings-panel {
-    background-color: #444;
-    color: #fff;
-}
-
 .sound-attribution {
     margin-top: auto;
     font-size: 12px;
@@ -131,7 +133,7 @@ body.dark-mode .settings-panel {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 20px;
+    font-size: var(--icon-size);
     color: inherit;
     padding: 5px;
 }
@@ -201,6 +203,16 @@ body.dark-mode .timer-icon:hover i {
 :root {
     --active-color: #4CAF50;
     --hover-color: #4CAF50;
+    --bg-color: #f0f0f0;
+    --dark-bg: #333;
+    --dark-panel: #444;
+    --dark-element: #555;
+    --light-border: #ddd;
+    
+    --icon-size: 20px;
+    --large-icon-size: 24px;
+    --standard-spacing: 10px;
+    --panel-width: 300px;
 }
 
 /* 新增這個樣式確保按鈕可以被對定位 */
@@ -208,18 +220,19 @@ body.dark-mode .timer-icon:hover i {
     position: relative;
 }
 
-/* 全螢幕模式下的樣式 */
-:fullscreen {
-    background-color: inherit;
-}
-
-/* 針對不同瀏覽器的全螢幕模式 */
-:-webkit-full-screen {
-    background-color: inherit;
-}
-
+/* 整合所有全螢幕相關樣式 */
+:fullscreen,
+:-webkit-full-screen,
 :-moz-full-screen {
     background-color: inherit;
+}
+
+:fullscreen .timer,
+:-webkit-full-screen .timer,
+:-moz-full-screen .timer,
+.super-fullscreen .timer {
+    max-width: none;
+    max-height: none;
 }
 
 /* 全螢幕按鈕切換圖示 */
@@ -240,7 +253,7 @@ body.dark-mode .timer-icon:hover i {
 
 .fullscreen-icon,
 .settings-icon {
-    font-size: 24px;
+    font-size: var(--large-icon-size);
     cursor: pointer;
 }
 
@@ -338,11 +351,14 @@ body.dark-mode .minutes-input {
     justify-content: center;
 }
 
-.icon-categories i {
-    font-size: 18px;
+.icon-categories i,
+.icon-list i {
     cursor: pointer;
-    padding: 8px;
+    padding: var(--standard-spacing);
     border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .icon-categories i:hover,
