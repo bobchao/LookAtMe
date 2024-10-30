@@ -50,7 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
             muteSound: false,
             alwaysShowTime: false,
             showShortcuts: false,
-            fullscreen: false
+            fullscreen: false,
+            icons: [
+                { id: 'icon1', minutes: 5, icon: 'fa-coffee' },
+                { id: 'icon2', minutes: 15, icon: 'fa-mug-hot' },
+                { id: 'icon3', minutes: 25, icon: 'fa-briefcase' }
+            ]
         },
 
         load() {
@@ -67,7 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 circleColor: elements.circleColorInput.value,
                 muteSound: elements.muteSoundToggle.classList.contains('active'),
                 alwaysShowTime: elements.alwaysShowTimeToggle.classList.contains('active'),
-                showShortcuts: elements.showShortcutsToggle.classList.contains('active')
+                showShortcuts: elements.showShortcutsToggle.classList.contains('active'),
+                icons: this.getIconSettings()
             };
             localStorage.setItem('timerSettings', JSON.stringify(currentSettings));
             uiUpdater.updateHandleColor(currentSettings.circleColor);
@@ -89,6 +95,45 @@ document.addEventListener('DOMContentLoaded', () => {
             uiUpdater.updateHandleColor(settings.circleColor);
             uiUpdater.updateButtonColors(settings.circleColor);
             uiUpdater.updateTimeDisplay();
+
+            // 套用圖示設定
+            if (settings.icons) {
+                const inputs = document.querySelectorAll('.minutes-input');
+                const icons = document.querySelectorAll('.current-icon');
+                settings.icons.forEach((iconSetting, index) => {
+                    if (inputs[index]) {
+                        inputs[index].value = iconSetting.minutes;
+                    }
+                    if (icons[index]) {
+                        // 移除所有現有的 font-awesome 類別
+                        icons[index].className = icons[index].className
+                            .split(' ')
+                            .filter(cls => !cls.startsWith('fa-'))
+                            .join(' ');
+                        // 加入新的圖示類別
+                        icons[index].classList.add('fas', iconSetting.icon);
+                        
+                        // 更新 SVG 中的圖示
+                        const svgIcon = elements[`icon${index + 1}`].querySelector('i');
+                        svgIcon.className = `fas ${iconSetting.icon}`;
+                    }
+                });
+                // 更新圖示位置
+                uiUpdater.updateIconPositions();
+            }
+        },
+
+        getIconSettings() {
+            const iconSettings = [];
+            document.querySelectorAll('.icon-setting').forEach((setting, index) => {
+                iconSettings.push({
+                    id: `icon${index + 1}`,
+                    minutes: parseInt(setting.querySelector('.minutes-input').value),
+                    icon: Array.from(setting.querySelector('.current-icon').classList)
+                        .find(cls => cls.startsWith('fa-'))
+                });
+            });
+            return iconSettings;
         }
     };
 
@@ -192,24 +237,55 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         },
 
+        animateIconPosition(element, currentX, currentY, targetX, targetY) {
+            const startTime = performance.now();
+            const duration = 300; // 動畫持續 300 毫秒
+            
+            const animate = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用 easeOutQuad 緩動函數讓動畫更順暢
+                const eased = 1 - (1 - progress) * (1 - progress);
+                
+                const x = currentX + (targetX - currentX) * eased;
+                const y = currentY + (targetY - currentY) * eased;
+                
+                element.setAttribute('x', x);
+                element.setAttribute('y', y);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            };
+            
+            requestAnimationFrame(animate);
+        },
+
         updateIconPositions() {
-            // 圖示 1 (5分鐘)
-            const icon1Pos = this.calculateIconPosition(5);
-            elements.icon1.setAttribute('x', icon1Pos.x);
-            elements.icon1.setAttribute('y', icon1Pos.y);
-            elements.icon1.setAttribute('transform', icon1Pos.transform);
+            const inputs = document.querySelectorAll('.minutes-input');
+            
+            // 儲存當前位置
+            const getCurrentPosition = (element) => ({
+                x: parseFloat(element.getAttribute('x')) || 0,
+                y: parseFloat(element.getAttribute('y')) || 0
+            });
 
-            // 圖示 2 (15分鐘)
-            const icon2Pos = this.calculateIconPosition(15);
-            elements.icon2.setAttribute('x', icon2Pos.x);
-            elements.icon2.setAttribute('y', icon2Pos.y);
-            elements.icon2.setAttribute('transform', icon2Pos.transform);
-
-            // 圖示 3 (25分鐘)
-            const icon3Pos = this.calculateIconPosition(25);
-            elements.icon3.setAttribute('x', icon3Pos.x);
-            elements.icon3.setAttribute('y', icon3Pos.y);
-            elements.icon3.setAttribute('transform', icon3Pos.transform);
+            // 更新每個圖示的位置
+            [elements.icon1, elements.icon2, elements.icon3].forEach((icon, index) => {
+                const currentPos = getCurrentPosition(icon);
+                const targetPos = this.calculateIconPosition(parseInt(inputs[index].value));
+                
+                this.animateIconPosition(
+                    icon,
+                    currentPos.x,
+                    currentPos.y,
+                    targetPos.x,
+                    targetPos.y
+                );
+                // 保持 transform 屬性不變
+                icon.setAttribute('transform', targetPos.transform);
+            });
         },
 
         resizeTimer() {
@@ -307,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         start() {
             // 確保先停止現有計時器
             this.stop();
-            // 發送開始命令給 worker
+            // 發送開始命令��� worker
             this.worker.postMessage({ 
                 command: 'start', 
                 time: state.remainingTime 
@@ -439,18 +515,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // 視窗大小調整
         window.addEventListener('resize', () => uiUpdater.resizeTimer());
 
-        // 修改快捷按鈕事件綁定
+        // 修改快捷按鈕事件綁定，使用設定中的實際分鐘數
         elements.icon1.querySelector('i').addEventListener('click', (e) => {
-            e.stopPropagation();  // 防止事件冒泡
-            setTimer(5);
+            e.stopPropagation();
+            const minutes = parseInt(document.querySelectorAll('.minutes-input')[0].value);
+            setTimer(minutes);
         });
         elements.icon2.querySelector('i').addEventListener('click', (e) => {
             e.stopPropagation();
-            setTimer(15);
+            const minutes = parseInt(document.querySelectorAll('.minutes-input')[1].value);
+            setTimer(minutes);
         });
         elements.icon3.querySelector('i').addEventListener('click', (e) => {
             e.stopPropagation();
-            setTimer(25);
+            const minutes = parseInt(document.querySelectorAll('.minutes-input')[2].value);
+            setTimer(minutes);
         });
 
         // 全螢幕切換
@@ -462,6 +541,75 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
         document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+
+        // 圖示設定按鈕
+        document.getElementById('editIcons').addEventListener('click', () => {
+            const iconSettings = document.querySelector('.icon-settings');
+            iconSettings.style.display = iconSettings.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // 修改分鐘輸入的監聽，改用 input 事件以實現即時更新
+        document.querySelectorAll('.minutes-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                let value = e.target.value;
+                
+                // 處理非數字輸入
+                if (!/^\d*\.?\d*$/.test(value)) {
+                    value = '60';
+                }
+                
+                // 處理小數
+                value = Math.floor(parseFloat(value));
+                
+                // 處理特殊情況
+                if (value === 0 || isNaN(value)) {
+                    value = 60;
+                }
+                
+                // 處理循環
+                if (value > 60) {
+                    value = 1;
+                } else if (value < 1) {
+                    value = 60;
+                }
+                
+                // 更新輸入框的值
+                e.target.value = value;
+                
+                settings.save();
+                uiUpdater.updateIconPositions();
+            });
+
+            // 處理方向鍵和滾輪事件
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    let value = parseInt(e.target.value);
+                    if (e.key === 'ArrowUp') {
+                        value = value >= 60 ? 1 : value + 1;
+                    } else {
+                        value = value <= 1 ? 60 : value - 1;
+                    }
+                    e.target.value = value;
+                    settings.save();
+                    uiUpdater.updateIconPositions();
+                }
+            });
+
+            // ��輪事件
+            input.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                let value = parseInt(e.target.value);
+                if (e.deltaY < 0) {
+                    value = value >= 60 ? 1 : value + 1;
+                } else {
+                    value = value <= 1 ? 60 : value - 1;
+                }
+                e.target.value = value;
+                settings.save();
+                uiUpdater.updateIconPositions();
+            }, { passive: false });
+        });
     }
 
     // 設定計時器
