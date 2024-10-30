@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showShortcutsToggle: document.getElementById('showShortcuts'),
         shortBreakIcon: document.getElementById('shortBreakIcon'),
         longBreakIcon: document.getElementById('longBreakIcon'),
-        workIcon: document.getElementById('workIcon')
+        workIcon: document.getElementById('workIcon'),
+        fullscreenToggle: document.querySelector('.fullscreen-icon')
     };
 
     // 狀態管理
@@ -48,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
             circleColor: '#4CAF50',
             muteSound: false,
             alwaysShowTime: false,
-            showShortcuts: false
+            showShortcuts: false,
+            fullscreen: false
         },
 
         load() {
@@ -186,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return {
                 x: x,
                 y: y,
-                transform: `translate(-2.5, -2.5)` // 使用 transform 來調整位置
+                transform: `translate(-2.5, -2.5)` // 使用 transform 來調整位
             };
         },
 
@@ -211,10 +213,41 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         resizeTimer() {
-            const containerSize = Math.min(window.innerWidth, window.innerHeight) * 0.8;
-            elements.svg.style.width = `${containerSize}px`;
-            elements.svg.style.height = `${containerSize}px`;
-            this.updateIconPositions(); // 在調整大小時更新圖示位置
+            const isFullscreen = document.fullscreenElement || 
+                               document.webkitFullscreenElement || 
+                               document.mozFullScreenElement;
+
+            if (isFullscreen) {
+                // 計算螢幕對角線長度
+                const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
+                const diagonal = Math.sqrt(Math.pow(screenWidth, 2) + Math.pow(screenHeight, 2));
+                
+                // 計算需要的縮放比例
+                // 由於 SVG viewBox 是 110x110，圓形半徑是 45
+                // 我們需要讓圓形直徑（90）等於對角線長度
+                const scale = diagonal / 90;
+                
+                // 設置 SVG 的尺寸
+                elements.svg.style.width = `${110 * scale}px`;
+                elements.svg.style.height = `${110 * scale}px`;
+                
+                // 調整 SVG 的位置，使其置中
+                elements.svg.style.position = 'absolute';
+                elements.svg.style.left = `${(screenWidth - (110 * scale)) / 2}px`;
+                elements.svg.style.top = `${(screenHeight - (110 * scale)) / 2}px`;
+            } else {
+                // 恢復原始大小
+                const containerSize = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+                elements.svg.style.width = `${containerSize}px`;
+                elements.svg.style.height = `${containerSize}px`;
+                elements.svg.style.position = '';
+                elements.svg.style.left = '';
+                elements.svg.style.top = '';
+            }
+
+            // 更新圖示位置
+            this.updateIconPositions();
         }
     };
 
@@ -237,6 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         handleTick(workerRemainingTime) {
+            if (state.isDragging) {
+                return;
+            }
+
             state.remainingTime = workerRemainingTime;
             if (!this.timerId) {
                 this.startTime = performance.now();
@@ -382,8 +419,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // 拖曳相關
-        elements.svg.addEventListener('mousedown', e => dragController.startDragging(e));
-        elements.svg.addEventListener('touchstart', e => dragController.startDragging(e));
+        const dragElements = [
+            elements.progressPath,
+            elements.handle,
+            document.querySelector('.timer-background')  // 背景圓圈
+        ];
+
+        // 拖曳相關
+        dragElements.forEach(element => {
+            element.addEventListener('mousedown', e => dragController.startDragging(e));
+            element.addEventListener('touchstart', e => dragController.startDragging(e));
+        });
+
         document.addEventListener('mousemove', e => dragController.drag(e));
         document.addEventListener('touchmove', e => dragController.drag(e));
         document.addEventListener('mouseup', () => dragController.stopDragging());
@@ -392,10 +439,29 @@ document.addEventListener('DOMContentLoaded', () => {
         // 視窗大小調整
         window.addEventListener('resize', () => uiUpdater.resizeTimer());
 
-        // 快捷按鈕
-        elements.shortBreakIcon.addEventListener('click', () => setTimer(5));
-        elements.longBreakIcon.addEventListener('click', () => setTimer(15));
-        elements.workIcon.addEventListener('click', () => setTimer(25));
+        // 修改快捷按鈕事件綁定
+        elements.shortBreakIcon.querySelector('i').addEventListener('click', (e) => {
+            e.stopPropagation();  // 防止事件冒泡
+            setTimer(5);
+        });
+        elements.longBreakIcon.querySelector('i').addEventListener('click', (e) => {
+            e.stopPropagation();
+            setTimer(15);
+        });
+        elements.workIcon.querySelector('i').addEventListener('click', (e) => {
+            e.stopPropagation();
+            setTimer(25);
+        });
+
+        // 全螢幕切換
+        elements.fullscreenToggle.addEventListener('click', () => {
+            toggleFullScreen();
+        });
+
+        // 監聽全螢幕狀態變化
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
     }
 
     // 設定計時器
@@ -418,4 +484,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     init();
+
+    // 將這些函數移到 DOMContentLoaded 事件處理器內部
+    function toggleFullScreen() {
+        if (!document.fullscreenElement && 
+            !document.webkitFullscreenElement && 
+            !document.mozFullScreenElement) {
+            // 進入全螢幕
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            }
+        } else {
+            // 退出全螢幕
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            }
+        }
+    }
+
+    function handleFullscreenChange() {
+        const isFullscreen = document.fullscreenElement || 
+                            document.webkitFullscreenElement || 
+                            document.mozFullScreenElement;
+        
+        elements.fullscreenToggle.classList.toggle('active', isFullscreen);
+        document.body.classList.toggle('super-fullscreen', isFullscreen);
+        
+        // 在全螢幕狀態改變時重新計算尺寸
+        uiUpdater.resizeTimer();
+    }
 });

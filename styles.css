@@ -28,11 +28,16 @@ body.dark-mode {
     height: 100%;
     max-width: 80vh;
     max-height: 80vh;
+    transition: max-width 0.3s, max-height 0.3s;
 }
 
 .timer-background {
     fill: #e0e0e0;
     stroke: none;
+}
+
+body.dark-mode .timer-background {
+    fill: #101010;
 }
 
 .timer-progress {
@@ -210,7 +215,91 @@ body.dark-mode .work-icon:hover i {
     --hover-color: #4CAF50;
 }
 
-/* 新增這個樣式確保按鈕可以被絕對定位 */
+/* 新增這個樣式確保按鈕可以被對定位 */
 .container {
     position: relative;
+}
+
+/* 新增圖示專用的 hover 樣式 */
+.shortcuts-visible .work-icon i:hover,
+.shortcuts-visible .short-break-icon i:hover,
+.shortcuts-visible .long-break-icon i:hover {
+    cursor: pointer;
+    color: var(--hover-color);
+}
+
+/* 確保圖示本身可以被互動 */
+.work-icon i,
+.short-break-icon i,
+.long-break-icon i {
+    pointer-events: auto;
+}
+
+/* 確保 foreignObject 不會干擾點擊事件 */
+.work-icon,
+.short-break-icon,
+.long-break-icon {
+    pointer-events: none;
+}
+
+/* 全螢幕模式下的樣式 */
+:fullscreen {
+    background-color: inherit;
+}
+
+/* 針對不同瀏覽器的全螢幕模式 */
+:-webkit-full-screen {
+    background-color: inherit;
+}
+
+:-moz-full-screen {
+    background-color: inherit;
+}
+
+/* 全螢幕按鈕切換圖示 */
+#fullscreenToggle.active .fa-expand:before {
+    content: "\f066";  /* 縮小圖示 */
+}
+
+/* 新增控制按鈕群組的樣式 */
+.control-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1000;
+}
+
+.fullscreen-icon,
+.settings-icon {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* 移除舊的 settings-icon 樣式 */
+.settings-icon {
+    position: static;  /* 移除 fixed 定位 */
+}
+
+/* 全螢幕按鈕切換圖示 */
+.fullscreen-icon.active .fa-expand:before {
+    content: "\f066";  /* 縮小圖示 */
+}
+
+/* 新增超級全螢幕模式的樣式 */
+:fullscreen .timer {
+    max-width: none;
+    max-height: none;
+}
+
+:-webkit-full-screen .timer {
+    max-width: none;
+    max-height: none;
+}
+
+:-moz-full-screen .timer {
+    max-width: none;
+    max-height: none;
 }
