@@ -605,24 +605,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // 拖曳相關
-        const dragElements = [
-            elements.progressPath,
-            elements.handle,
-            document.querySelector('.timer-background')  // 背景圓圈
-        ];
+        const handleElement = elements.handle;
 
-        // 拖曳相關
-        dragElements.forEach(element => {
-            element.addEventListener('mousedown', e => {
-                e.preventDefault();
-                dragController.startDragging(e);
-            });
-            element.addEventListener('touchstart', e => {
-                e.preventDefault();
-                dragController.startDragging(e);
-            }, { passive: false });
+        // 只為 handle 元素添加拖曳事件
+        handleElement.addEventListener('mousedown', e => {
+            e.preventDefault();
+            dragController.startDragging(e);
         });
+        
+        handleElement.addEventListener('touchstart', e => {
+            e.preventDefault();
+            dragController.startDragging(e);
+        }, { passive: false });
 
+        // 保留現有的 mousemove 和 touchmove 事件監聽
         document.addEventListener('mousemove', e => {
             if (state.isDragging) {
                 e.preventDefault();
@@ -637,6 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, { passive: false });
 
+        // 保留現有的 mouseup 和 touchend 事件監聽
         document.addEventListener('mouseup', () => dragController.stopDragging());
         document.addEventListener('touchend', () => dragController.stopDragging(), { passive: true });
 
