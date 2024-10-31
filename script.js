@@ -461,6 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 拖曳控制
     const dragController = {
         startDragging(e) {
+            e.preventDefault();
             state.isDragging = true;
             this.updateTimerFromPosition(this.getEventPosition(e));
             elements.display.style.display = 'block';
@@ -476,6 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         drag(e) {
             if (state.isDragging) {
+                e.preventDefault();
                 this.updateTimerFromPosition(this.getEventPosition(e));
             }
         },
@@ -611,12 +613,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 拖曳相關
         dragElements.forEach(element => {
-            element.addEventListener('mousedown', e => dragController.startDragging(e));
-            element.addEventListener('touchstart', e => dragController.startDragging(e), { passive: false });
+            element.addEventListener('mousedown', e => {
+                e.preventDefault();
+                dragController.startDragging(e);
+            });
+            element.addEventListener('touchstart', e => {
+                e.preventDefault();
+                dragController.startDragging(e);
+            }, { passive: false });
         });
 
-        document.addEventListener('mousemove', e => dragController.drag(e));
-        document.addEventListener('touchmove', e => dragController.drag(e), { passive: false });
+        document.addEventListener('mousemove', e => {
+            if (state.isDragging) {
+                e.preventDefault();
+                dragController.drag(e);
+            }
+        });
+        
+        document.addEventListener('touchmove', e => {
+            if (state.isDragging) {
+                e.preventDefault();
+                dragController.drag(e);
+            }
+        }, { passive: false });
+
         document.addEventListener('mouseup', () => dragController.stopDragging());
         document.addEventListener('touchend', () => dragController.stopDragging(), { passive: true });
 
