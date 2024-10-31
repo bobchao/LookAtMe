@@ -1,0 +1,19 @@
+{
+  "name": "timer",
+  "version": "1.0.0",
+  "description": "LookAtMe Timer is a simple and elegant visual timer web application. It allows users to set timers by dragging a circular interface and offers various customization options.",
+  "main": "script.js",
+  "scripts": {
+    "start": "http-server -p 3000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.48.2",
+    "@types/node": "^22.8.5"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
