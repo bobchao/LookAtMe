@@ -60,6 +60,7 @@ body.dark-mode .icon-list i:hover { background: var(--dark-element); }
     stroke: #333;
     stroke-width: 4;
     stroke-linecap: round;
+    cursor: pointer;
 }
 
 .timer-display {
@@ -177,10 +178,11 @@ body.dark-mode .icon-list i:hover { background: var(--dark-element); }
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 100%;
+    width: 5px;
+    height: 5px;
     overflow: visible;
     opacity: 0;
+    pointer-events: bounding-box;
 }
 
 .shortcuts-visible .timer-icon {
