@@ -1,10 +1,6 @@
-// 移除狀態對象，簡化邏輯
-let startTime = null;
 let targetEndTime = null;
 let timerInterval = null;
-let remainingTime = 0;
 
-// 訊息處理
 self.onmessage = function(event) {
     const { command, time } = event.data;
     
@@ -14,23 +10,13 @@ self.onmessage = function(event) {
             clearInterval(timerInterval);
         }
         
-        // 設置初始時間和目標結束時間
-        startTime = Date.now();
-        targetEndTime = startTime + time;
-        remainingTime = time;
+        // 只記錄目標結束時間
+        targetEndTime = Date.now() + time;
         
-        // 開始新的計時器
+        // 使用 1 秒的更新頻率
         timerInterval = setInterval(() => {
             const now = Date.now();
-            const actualRemaining = targetEndTime - now;
-            
-            // 每10秒進行一次時間校正
-            if (Math.abs(actualRemaining - remainingTime) > 100) {
-                console.log('Time drift detected, correcting...');
-                remainingTime = actualRemaining;
-            } else {
-                remainingTime = Math.max(0, remainingTime - 100);
-            }
+            const remainingTime = Math.max(0, targetEndTime - now);
 
             if (remainingTime > 0) {
                 self.postMessage({ 
@@ -42,14 +28,13 @@ self.onmessage = function(event) {
                 timerInterval = null;
                 self.postMessage({ command: 'end' });
             }
-        }, 100);
+        }, 1000);
         
     } else if (command === 'stop') {
         if (timerInterval) {
             clearInterval(timerInterval);
             timerInterval = null;
         }
-        startTime = null;
         targetEndTime = null;
     }
 };
