@@ -396,6 +396,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.handleEnd();
                 }
             };
+            
+            // 監聽頁面可見性變化
+            document.addEventListener('visibilitychange', () => {
+                const isBackground = document.hidden;
+                this.worker.postMessage({ 
+                    command: 'visibility-change',
+                    isBackground: isBackground
+                });
+            });
         },
 
         handleTick(workerRemainingTime) {
@@ -434,12 +443,11 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         start() {
-            // 確保先停止現有計時器
-            this.stop();
-            // 發送開始命令 worker
+            const isBackground = document.hidden;
             this.worker.postMessage({ 
                 command: 'start', 
-                time: state.remainingTime 
+                time: state.remainingTime,
+                isBackground: isBackground
             });
         },
 
